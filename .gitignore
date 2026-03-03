@@ -1,0 +1,26 @@
+# ------------------------------------------------------------
+# Global: never commit Vagrant runtime state
+# ------------------------------------------------------------
+.vagrant/
+**/.vagrant/
+
+# ------------------------------------------------------------
+# Labs: ignore EVERYTHING by default
+# ------------------------------------------------------------
+labs/**
+
+# ------------------------------------------------------------
+# Labs: allowlist directories (required so Git descends)
+# ------------------------------------------------------------
+!labs/
+!labs/**/
+
+# ------------------------------------------------------------
+# Labs: allowlist ONLY what we want tracked
+# ------------------------------------------------------------
+
+# Track each lab's Vagrantfile
+!labs/**/Vagrantfile
+
+# Track lab README files (recommended)
+!labs/**/README.md

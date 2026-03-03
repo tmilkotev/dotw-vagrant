@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+
+if git diff --cached --name-only | grep -qE '^templates/'; then
+  echo "ERROR: templates/ is locked. Do not commit changes under templates/."
+  echo "If you really must change templates, do it via an approved process."
+  exit 1
+fi

@@ -1,0 +1,101 @@
+Vagrant.configure("2") do |config|
+
+  # Lab name = current directory name
+  LAB = File.basename(File.expand_path("."))
+
+  # Configure per lab (example: "192.168.60")
+  PRIVATE_NETWORK = "192.168.100"
+
+  require "fileutils"
+
+  # ====================
+  # Defaults (override per VM if needed)
+  # ====================
+  DEFAULTS = {
+    memory: 2048,
+    cpus: 2,
+    gui: false,
+    linked_clone: true
+  }
+
+  # ====================
+  # Canonical VM definitions (source of truth)
+  # more info about box: https://app.vagrantup.com/boxes/search
+  # ex: almalinux/10, generic/ubuntu2204, centos/7, rocky/8, debian/12
+  # ====================
+  VIRTUALMACHINES = {
+    "controller" => {
+      ip:  "10",
+      box: "almalinux/10"
+
+    },
+     "compute1" => {
+       ip:  "20",
+       box: "almalinux/10",
+       cpus: 4
+     },
+     "compute2" => {
+       ip:  "30",
+       box: "almalinux/10",
+       cpus: 4
+     }
+  }
+
+  # ====================
+  # Generate system-setting/hosts.entries
+  # ====================
+  system_dir = File.join(File.dirname(__FILE__), "system-setting")
+  FileUtils.mkdir_p(system_dir)
+
+  hosts_file = File.join(system_dir, "hosts.entries")
+  File.open(hosts_file, "w") do |f|
+    VIRTUALMACHINES.each do |name, cfg|
+      hostname = "#{LAB}-#{name}"
+      ipaddr   = "#{PRIVATE_NETWORK}.#{cfg[:ip]}"
+      f.puts "#{ipaddr} #{hostname}"
+    end
+  end
+
+  # ====================
+  # Define VMs
+  # ====================
+  VIRTUALMACHINES.each do |name, cfg|
+    cfg = DEFAULTS.merge(cfg)
+
+    hostname = "#{LAB}-#{name}"
+    ipaddr   = "#{PRIVATE_NETWORK}.#{cfg[:ip]}"
+
+    # --------------------
+    # Select OS provision script based on box (ex: "almalinux/10")
+    # --------------------
+    box = cfg[:box].to_s
+    os_id, os_major = box.split("/", 2)
+    os_major = os_major.to_s.split(".", 2)[0]
+
+    script_name     = "#{os_id}#{os_major}.sh"  # ex: almalinux10.sh
+    template_script = File.expand_path("../../templates/provision/#{script_name}", __dir__)
+    lab_script      = File.join(system_dir, script_name)
+
+    config.vm.define hostname do |node|
+      node.vm.box = cfg[:box]
+      node.vm.hostname = hostname
+      node.vm.network "private_network", ip: ipaddr
+
+      node.vm.provider "virtualbox" do |vb|
+        vb.name = hostname
+        vb.memory = cfg[:memory]
+        vb.cpus = cfg[:cpus]
+        vb.gui = cfg[:gui]
+        vb.linked_clone = cfg[:linked_clone]
+      end
+
+      if !File.exist?(template_script)
+        puts "WARNING: Specific provision script does not exist. VM will not be provisioned. (missing #{template_script})"
+      else
+        FileUtils.cp(template_script, lab_script)
+        node.vm.provision "shell", path: lab_script
+      end
+    end
+  end
+
+end
