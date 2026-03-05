@@ -1,4 +1,4 @@
-# OpenShift-Compatible Lab (OpenStack Base)
+# OKD-Compatible Lab (OpenStack Base)
 
 This lab provisions the infrastructure layer for an OpenShift-compatible platform using Vagrant + VirtualBox on a single workstation.
 
@@ -30,7 +30,7 @@ These nodes are used as the OpenStack base. Kubernetes/OpenShift-compatible work
 From this directory:
 
 ```bash
-cd vagrant/labs/openshift-lab
+cd vagrant/labs/okd-lab
 vagrant up
 ```
 
@@ -39,12 +39,12 @@ vagrant up
 From this directory:
 
 ```bash
-cd vagrant/labs/openshift-lab
+cd vagrant/labs/okd-lab
 vagrant halt
 ```
 
 Open powershell:
 
 ```powershell
-VBoxManage modifyvm "openshift-lab-compute1" --nested-hw-virt on
-VBoxManage modifyvm "openshift-lab-compute2" --nested-hw-virt on
+VBoxManage modifyvm "okd-lab-compute1" --nested-hw-virt on
+VBoxManage modifyvm "okd-lab-compute2" --nested-hw-virt on
