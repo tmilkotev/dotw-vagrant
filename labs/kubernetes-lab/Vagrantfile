@@ -35,6 +35,10 @@ Vagrant.configure("2") do |config|
        cpus: 2,
        ip:  "20",
        box: "almalinux/10"
+     },
+     "preg" => {
+      ip:  "30",
+      box: "almalinux/10"
      }
   }
 
